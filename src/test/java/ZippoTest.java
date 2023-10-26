@@ -77,7 +77,7 @@ public class ZippoTest {
 
                 .then()
                 .statusCode(200)
-                .body("places[0].state", equalTo("California"));
+                .body("places[0].state", equalTo("California"))
         ;
     }
 
@@ -110,7 +110,7 @@ public class ZippoTest {
                 .get("http://api.zippopotam.us/us/90210")
 
                 .then()
-                .body("places", hasSize(1)); // places ın item size 1 e eşit mi
+                .body("places", hasSize(1)) // places ın item size 1 e eşit mi
         ;
     }
 
@@ -122,7 +122,7 @@ public class ZippoTest {
                 .get("http://api.zippopotam.us/us/90210")
 
                 .then()
-                .body("places.size()", equalTo(1)); // places ın item size 1 e eşit mi
+                .body("places.size()", equalTo(1)) // places ın item size 1 e eşit mi
         ;
     }
 
