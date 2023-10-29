@@ -1,10 +1,17 @@
+import io.restassured.builder.RequestSpecBuilder;
+import io.restassured.builder.ResponseSpecBuilder;
+import io.restassured.filter.log.LogDetail;
 import io.restassured.http.ContentType;
+import io.restassured.specification.RequestSpecification;
+import io.restassured.specification.ResponseSpecification;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import static io.restassured.RestAssured.*;
+import static io.restassured.RestAssured.baseURI;
+import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
 
-public class ZippoTest {
+public class _01_ApiTest {
 
     @Test
     public void test1(){
@@ -57,7 +64,7 @@ public class ZippoTest {
                 .get("http://api.zippopotam.us/us/90210")
 
                 .then()
-                //.log().body()
+                .log().body()
                 .statusCode(200)  // assertion
                 .body("country", equalTo("United States")) //assertion
         // body nin country değişkeni "United States" eşit Mİ
@@ -110,7 +117,7 @@ public class ZippoTest {
                 .get("http://api.zippopotam.us/us/90210")
 
                 .then()
-                .body("places", hasSize(1)) // places ın item size 1 e eşit mi
+                .body("places", hasSize(1)); // places ın item size 1 e eşit mi
         ;
     }
 
@@ -122,7 +129,7 @@ public class ZippoTest {
                 .get("http://api.zippopotam.us/us/90210")
 
                 .then()
-                .body("places.size()", equalTo(1)) // places ın item size 1 e eşit mi
+                .body("places.size()", equalTo(1)); // places ın item size 1 e eşit mi
         ;
     }
 
@@ -161,7 +168,7 @@ public class ZippoTest {
     public void queryParamTest(){
         // https://gorest.co.in/public/v1/users?page=3
         given()
-                .param("page",1) // ?page=1  şeklinde linke ekleniyor
+                .param("page",1) // ?page=1  şeklinde linke ekleniyor  // queryParam ile de kullanılabilir
                 .log().uri()
 
                 .when()
@@ -171,9 +178,62 @@ public class ZippoTest {
                 .statusCode(200)
                 .log().body()
         ;
-
     }
 
+    @Test
+    public void queryParamTest2(){
+        // https://gorest.co.in/public/v1/users?page=3
+        // bu linkteki 1 den 10 kadar sayfaları çağırdığınızda response daki donen page degerlerinin
+        // çağrılan page nosu ile aynı olup olmadığını kontrol ediniz.
+
+        for (int i = 1; i <= 10 ; i++) {
+            given()
+                    .param("page", i)
+                    .log().uri()
+
+                    .when()
+                    .get("https://gorest.co.in/public/v1/users")
+
+                    .then()
+                    .statusCode(200)
+                    //.log().body()
+                    .body("meta.pagination.page", equalTo(i))
+            ;
+        }
+    }
+
+    RequestSpecification requestSpec;
+    ResponseSpecification responseSpec;
+
+    @BeforeClass
+    public void setup(){
+        baseURI = "https://gorest.co.in/public/v1";
+
+        requestSpec= new RequestSpecBuilder()
+                .setContentType(ContentType.JSON)
+                .log(LogDetail.URI)  // log().uri()
+                .build();
+
+        responseSpec = new ResponseSpecBuilder()
+                .expectStatusCode(200)  // statusCode(200)
+                .log(LogDetail.BODY)  //log().body()
+                .expectContentType(ContentType.JSON)
+                .build();
+    }
+
+    @Test
+    public void requestResponseSpecificationn(){
+        given()
+                .param("page",1)
+                .spec(requestSpec)
+
+                .when()
+                .get("/users") // http hok ise baseUri baş tarafına gelir.
+
+                .then()
+                .spec(responseSpec)
+        ;
+    }
 
 
 
