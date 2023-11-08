@@ -96,7 +96,7 @@ public class CountryTest {
 
                 .then()
                 .log().body()
-                .statusCode(500) // Jenkins için hataya dönüştürüldü
+                .statusCode(400)
                 .body("message", containsString("already"))
         ;
     }
